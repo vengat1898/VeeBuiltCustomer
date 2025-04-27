@@ -1,17 +1,23 @@
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import otpimg from '../../assets/images/otp.png';
 
 export default function Otp() {
   const router = useRouter();
   const [otp, setOtp] = useState(['', '', '', '']);
+  const inputRefs = useRef([]);
 
   const handleOtpChange = (text, index) => {
     const newOtp = [...otp];
     newOtp[index] = text;
     setOtp(newOtp);
+
+    if (text && index < inputRefs.current.length - 1) {
+      inputRefs.current[index + 1].focus();
+    }
   };
 
   const handleVerify = async () => {
@@ -22,11 +28,13 @@ export default function Otp() {
     }
 
     try {
-     
       const response = await axios.post('https://veebuilds.com/mobile/otp_verify.php?type=1&otp=1111&mobile=9003272385');
 
       if (response.data.success === 1) {
-      
+    
+        await AsyncStorage.setItem('isVerified', 'true');
+        
+ 
         router.push('/components/Home');
       } else {
         Alert.alert('Error', 'Invalid OTP, please try again.');
@@ -46,6 +54,7 @@ export default function Otp() {
         {otp.map((digit, index) => (
           <TextInput
             key={index}
+            ref={(el) => (inputRefs.current[index] = el)}
             style={styles.otpBox}
             maxLength={1}
             keyboardType="numeric"
@@ -122,6 +131,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+
 
 
 

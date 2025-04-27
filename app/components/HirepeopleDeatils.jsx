@@ -1,29 +1,33 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList } from 'react-native';
+// HirepeopleDetails.js
+import { StyleSheet, Text, View, TouchableOpacity,FlatList,Image } from 'react-native';
 import React from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import logoimg from '../../assets/images/veebuilder.png';
-import { useRouter } from 'expo-router';
 
 const realEstateData = [
-  { id: '1', title: 'Minsway', type: 'Home', landType: 'Personal Land', size: '1000 sq ft', price: '₹ 1000 sq ft' },
-  { id: '2', title: 'Minsway', type: 'Home', landType: 'Personal Land', size: '1000 sq ft', price: '₹ 1000 sq ft' },
-  { id: '3', title: 'Minsway', type: 'Home', landType: 'Personal Land', size: '1000 sq ft', price: '₹ 1000 sq ft' },
-];
+    { id: '1', name: 'vengat', place: 'chennai', experience: '0 years of experience', size: '1000 sq ft', price: '49 enquiris answers' },
+    
+   
+  ];
 
-export default function Realestate() {
+export default function HirepeopleDetails() {
   const router = useRouter();
+  const { profession } = useLocalSearchParams(); // <-- Get profession passed
+
+
   const renderCard = ({ item }) => (
-    <TouchableOpacity onPress={() => router.push('/components/Landdetails')} style={styles.card}>
+    <View style={styles.card}>
       <Image source={logoimg} style={styles.logo} />
       <View style={{ flex: 1 }}>
-        <View style={styles.cardTextContainer}>
-          <Text style={styles.title}>{item.title}</Text>
-          <Text style={styles.subText}>{item.type}</Text>
-          <Text style={styles.subText}>{item.landType}</Text>
-          <Text style={styles.subText}>{item.size}</Text>
+        {/* Make the Text Container Touchable */}
+        <TouchableOpacity onPress={() => router.push('/components/HirepeopleDetails1')} style={styles.cardTextContainer}>
+          <Text style={styles.title}>{item.name}</Text>
+          <Text style={styles.subText}>{item.place}</Text>
+          <Text style={styles.subText}>{item.experience}</Text>
           <Text style={styles.subText}>{item.price}</Text>
-        </View>
+        </TouchableOpacity>
   
         {/* Buttons inside card */}
         <View style={styles.buttonRow}>
@@ -43,12 +47,12 @@ export default function Realestate() {
           </TouchableOpacity>
         </View>
       </View>
-    </TouchableOpacity>
+    </View>
   );
   
 
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1 }}>
       {/* Header */}
       <LinearGradient
         colors={['#1789AE', '#132740']}
@@ -56,27 +60,24 @@ export default function Realestate() {
         start={{ x: 1, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
-        <TouchableOpacity onPress={() => router.back('/components/Materials')} style={styles.backButton}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Real Estate</Text>
+        <Text style={styles.headerText}>{profession}</Text> {/* Show selected profession */}
       </LinearGradient>
 
+
       <FlatList
-        data={realEstateData}
-        keyExtractor={(item) => item.id}
-        renderItem={renderCard}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
+              data={realEstateData}
+              keyExtractor={(item) => item.id}
+              renderItem={renderCard}
+              contentContainerStyle={{ paddingBottom: 20 }}
+            />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
   header: {
     height: 80,
     paddingTop: 20,
@@ -84,13 +85,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  backButton: {
-    marginRight: 10,
+  backButton: { marginRight: 10 },
+  headerText: { color: 'white', fontSize: 20, fontWeight: 'bold' },
+  content: { 
+    flex: 1, 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    padding: 20 
   },
-  headerText: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: 'bold',
+  detailsText: {
+    fontSize: 18,
+    color: '#333',
   },
   card: {
     backgroundColor: '#fff',
@@ -211,6 +216,4 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
 });
-
-
 

@@ -1,19 +1,23 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image ,Pressable } from 'react-native'
-import { MaterialIcons, FontAwesome, Ionicons, Entypo } from '@expo/vector-icons'
+import { StyleSheet, Text, View, TouchableOpacity, Image, Pressable } from 'react-native'
+import { MaterialIcons, Ionicons } from '@expo/vector-icons'
 import React from 'react'
 import { LinearGradient } from 'expo-linear-gradient'
-
+import { useRouter } from 'expo-router'
 
 import material from '../../assets/images/hirepeople.png'
 import realestate from '../../assets/images/real.png'
 import hirepeople from '../../assets/images/hirepeople.png'
 
 export default function Myenquiry() {
-    const handlePress = (type) => {
-        console.log(`Pressed: ${type}`)
-      }
+  const router = useRouter()
+
+  const handlePress = (type) => {
+    router.push({ pathname: '/components/MyenquiryDetails', params: { title: type } })
+  }
+
   return (
     <View style={{ flex: 1 }}>
+      {/* Header */}
       <LinearGradient
         colors={['#1789AE', '#132740']}
         style={styles.header}
@@ -26,8 +30,9 @@ export default function Myenquiry() {
         <Text style={styles.headerText}>MyEnquiry</Text>
       </LinearGradient>
 
+      {/* Container with cards */}
       <View style={styles.container}>
-        <TouchableOpacity onPress={() => handlePress('Material')}>
+        <TouchableOpacity onPress={() => handlePress('meterilas enquiry')}>
           <LinearGradient
             colors={['#1789AE', '#132740']}
             style={styles.card}
@@ -39,7 +44,7 @@ export default function Myenquiry() {
           </LinearGradient>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => handlePress('Real Estate')}>
+        <TouchableOpacity onPress={() => handlePress('real estate enquiry')}>
           <LinearGradient
             colors={['#1789AE', '#132740']}
             style={styles.card}
@@ -51,7 +56,7 @@ export default function Myenquiry() {
           </LinearGradient>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => handlePress('Hire People')}>
+        <TouchableOpacity onPress={() => handlePress('Hire people enquiry')}>
           <LinearGradient
             colors={['#1789AE', '#132740']}
             style={styles.card}
@@ -64,39 +69,38 @@ export default function Myenquiry() {
         </TouchableOpacity>
       </View>
 
+      {/* Footer */}
       <View style={styles.footer}>
-  <Pressable style={styles.footerItem} onPress={() => handlePress('Home')}>
-    {({ pressed }) => (
-      <>
-        <Ionicons
-          name="home"
-          size={24}
-          color={pressed ? '#00A4C9' : '#808080'}
-        />
-        <Text style={[styles.footerText, { color: pressed ? '#00A4C9' : '#808080' }]}>
-          Home
-        </Text>
-      </>
-    )}
-  </Pressable>
-  
-  <Pressable style={styles.footerItem} onPress={() => handlePress('My Enquiry')}>
-    {({ pressed }) => (
-      <>
-        <MaterialIcons
-          name="assignment"
-          size={24}
-          color={pressed ? '#007A98' : '#00A4C9'}
-        />
-        <Text style={[styles.footerText, { color: pressed ? '#007A98' : '#00A4C9' }]}>
-          My Enquiry
-        </Text>
-      </>
-    )}
-  </Pressable>
-</View>
+        <Pressable style={styles.footerItem} onPress={() => handlePress('Home')}>
+          {({ pressed }) => (
+            <>
+              <Ionicons
+                name="home"
+                size={24}
+                color={pressed ? '#00A4C9' : '#808080'}
+              />
+              <Text style={[styles.footerText, { color: pressed ? '#00A4C9' : '#808080' }]}>
+                Home
+              </Text>
+            </>
+          )}
+        </Pressable>
 
-
+        <Pressable style={styles.footerItem} onPress={() => handlePress('My Enquiry')}>
+          {({ pressed }) => (
+            <>
+              <MaterialIcons
+                name="assignment"
+                size={24}
+                color={pressed ? '#007A98' : '#00A4C9'}
+              />
+              <Text style={[styles.footerText, { color: pressed ? '#007A98' : '#00A4C9' }]}>
+                My Enquiry
+              </Text>
+            </>
+          )}
+        </Pressable>
+      </View>
     </View>
   )
 }
@@ -127,13 +131,13 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     padding: 18,
-    borderRadius: 0,
+    borderRadius: 10,
     width: '100%',
   },
   image: {
     width: 40,
     height: 40,
-    marginRight: 16,
+    marginBottom: 8,
   },
   cardText: {
     fontSize: 18,
@@ -156,9 +160,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 4,
   },
-  
-  
 })
+
 
 
 

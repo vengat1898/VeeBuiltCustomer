@@ -13,6 +13,7 @@ import React, { useState, useRef } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, FontAwesome, Ionicons, Entypo } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { ActivityIndicator } from 'react-native';
 
 // Images
 import hot_enqiury from '../../assets/images/hot_enqiury.jpg';
@@ -139,7 +140,7 @@ export default function Home() {
             <Image source={real_estate_new} style={styles.categoryImage} resizeMode="cover" />
             <Text style={styles.categoryLabel}>Real Estate</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.categoryCard}>
+          <TouchableOpacity style={styles.categoryCard}onPress={() => router.push('/components/Hirepeople')}>
             <Image source={hire_people} style={styles.categoryImage} resizeMode="cover" />
             <Text style={styles.categoryLabel}>Hire People</Text>
           </TouchableOpacity>
