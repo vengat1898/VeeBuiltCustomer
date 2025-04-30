@@ -7,17 +7,21 @@ import axios from 'axios';
 
 export default function Materials({ navigation }) {
   const [categories, setCategories] = useState([]);
+  const [mainCategories, setMainCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showTrending, setShowTrending] = useState(false);
   const router = useRouter();
 
-  // Fetch all categories from the API
+  // Fetch all categories
   const fetchCategories = async () => {
     try {
       setLoading(true);
       const response = await axios.get('https://veebuilds.com/mobile/category.php');
       if (response.data.result === 'Success') {
         setCategories(response.data.storeList);
+        console.log('====================================');
+        console.log(response.data.storeList);
+        console.log('====================================');
         setShowTrending(true);
       } else {
         console.warn('Failed to fetch categories:', response.data.text);
@@ -29,7 +33,23 @@ export default function Materials({ navigation }) {
     }
   };
 
-  // Fetch data for a specific category when clicked
+  // Fetch main categories (the new one)
+  const fetchMainCategories = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('https://veebuilds.com/mobile/maincategory.php');
+      if (response.data.result === 'Success') {
+        setMainCategories(response.data.storeList);
+      } else {
+        console.warn('Failed to fetch main categories:', response.data.text);
+      }
+    } catch (error) {
+      console.error('Error fetching main categories:', error.response ? error.response.data : error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchCategoryById = async (catId) => {
     if (!catId) {
       console.warn('Invalid category ID:', catId);
@@ -41,14 +61,20 @@ export default function Materials({ navigation }) {
     try {
       setLoading(true);
       const response = await axios.get(`https://veebuilds.com/mobile/cat.php?cat_id=${catId}`);
+      console.log(response.data);
+
       if (response.data.result === 'Success') {
         setCategories(response.data.storeList);
         setShowTrending(true);
+      } else if (response.data.text === 'List Empty!') {
+        setCategories([]);
+        setShowTrending(true);
+        console.warn('No materials found.');
       } else {
         console.warn('Failed to fetch category data:', response.data.text);
       }
     } catch (error) {
-      console.error('Error fetching category data:', error);
+      console.error('Error fetching category data:', error.response ? error.response.data : error);
     } finally {
       setLoading(false);
     }
@@ -56,6 +82,7 @@ export default function Materials({ navigation }) {
 
   useEffect(() => {
     fetchCategories();
+    fetchMainCategories(); 
   }, []);
 
   return (
@@ -85,17 +112,14 @@ export default function Materials({ navigation }) {
 
       {/* Main Content */}
       <View style={styles.mainContent}>
-        {/* Categories List */}
+        {/* Left Side: Main Categories List */}
         <View style={styles.boxContainer}>
-          <TouchableOpacity
-            style={styles.boxButtonText}
-            onPress={fetchCategories}
-          >
+          <TouchableOpacity style={styles.boxButtonText} onPress={fetchCategories}>
             <Text style={styles.buttonText}>All</Text>
           </TouchableOpacity>
 
           <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-            {categories.map((item, index) => (
+            {mainCategories.map((item, index) => (
               <TouchableOpacity
                 key={index}
                 style={styles.imageBox}
@@ -108,7 +132,7 @@ export default function Materials({ navigation }) {
           </ScrollView>
         </View>
 
-        {/* Trending / Materials */}
+        {/* Right Side: Materials Display */}
         {showTrending && (
           <View style={styles.trendingContainer}>
             <Text style={styles.trendingHeader}>Categories</Text>
@@ -126,7 +150,7 @@ export default function Materials({ navigation }) {
                   >
                     <TouchableOpacity
                       style={styles.trendingItem}
-                      onPress={() => router.push('/components/Shop')}
+                      onPress={() =>router.push({ pathname: '/components/Shop', params: { cat_id: item.id } })}
                     >
                       <Image source={{ uri: item.image }} style={styles.trendingImage} />
                       <Text style={styles.trendingLabel}>{item.title}</Text>
@@ -145,8 +169,8 @@ export default function Materials({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   header: {
-    height: 80,
-    paddingTop: 20,
+    height: 100,
+    paddingTop: 40,
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
@@ -161,12 +185,12 @@ const styles = StyleSheet.create({
     margin: 16,
     paddingHorizontal: 12,
     borderRadius: 4,
-    width: 346,
-    right: 10,
-    bottom: 14,
+    width: 360,
+    marginRight: 30,
+    bottom: 10,
   },
   searchIcon: { marginRight: 8 },
-  searchInput: { flex: 1, height: 40, color: '#000' },
+  searchInput: { flex: 1, height: 40, color: '#000', width: "100%" },
   mainContent: { flexDirection: 'row', marginTop: 16, flex: 1 },
   boxContainer: {
     backgroundColor: '#F9F9F9',
@@ -178,7 +202,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     width: 80,
-    height: 600,
+    height: 700,
     bottom: 40,
     right: 10,
   },
@@ -208,7 +232,7 @@ const styles = StyleSheet.create({
     width: "100%",
     bottom: 50,
     right: 8,
-    height: 540,
+    height: 680,
   },
   trendingHeader: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
   trendingImagesContainer: {
@@ -229,6 +253,7 @@ const styles = StyleSheet.create({
   trendingImage: { width: 100, height: 100, borderRadius: 8 },
   trendingLabel: { fontSize: 12, color: '#fff', marginTop: 4, textAlign: 'center' },
 });
+
 
 
 

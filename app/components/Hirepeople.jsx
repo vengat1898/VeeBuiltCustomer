@@ -49,14 +49,14 @@ export default function Hirepeople() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   header: {
-    height: 80,
+    height: 120,
     paddingTop: 20,
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
   },
-  backButton: { marginRight: 10 },
-  headerText: { color: 'white', fontSize: 20, fontWeight: 'bold' },
+  backButton: { marginRight: 10,marginTop:30 },
+  headerText: { color: 'white', fontSize: 20, fontWeight: 'bold',marginTop:30 },
   scrollContainer: {
     paddingVertical: 20,
     paddingHorizontal: 16,

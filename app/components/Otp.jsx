@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
-import React, { useRef, useState } from 'react';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, Alert, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import React, { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,6 +9,23 @@ export default function Otp() {
   const router = useRouter();
   const [otp, setOtp] = useState(['', '', '', '']);
   const inputRefs = useRef([]);
+  const [mobile, setMobile] = useState('');
+  const [userId, setUserId] = useState('');
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   const handleOtpChange = (text, index) => {
     const newOtp = [...otp];
@@ -28,13 +45,13 @@ export default function Otp() {
     }
 
     try {
-      const response = await axios.post('https://veebuilds.com/mobile/otp_verify.php?type=1&otp=1111&mobile=9003272385');
+      const response = await axios.post('https://veebuilds.com/mobile/otp_verify.php?type=1&otp=1111&mobile=7358691041');
 
       if (response.data.success === 1) {
-    
+        await AsyncStorage.setItem('mobile', mobile);
+        await AsyncStorage.setItem('userId', userId);
         await AsyncStorage.setItem('isVerified', 'true');
-        
- 
+
         router.push('/components/Home');
       } else {
         Alert.alert('Error', 'Invalid OTP, please try again.');
@@ -46,32 +63,41 @@ export default function Otp() {
   };
 
   return (
-    <View style={styles.container}>
-      <Image source={otpimg} style={styles.logo} resizeMode="contain" />
-      <Text style={styles.heading}>OTP</Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1 }}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          <Image source={otpimg} style={styles.logo} resizeMode="contain" />
+          <Text style={styles.heading}>OTP</Text>
 
-      <View style={styles.otpContainer}>
-        {otp.map((digit, index) => (
-          <TextInput
-            key={index}
-            ref={(el) => (inputRefs.current[index] = el)}
-            style={styles.otpBox}
-            maxLength={1}
-            keyboardType="numeric"
-            value={digit}
-            onChangeText={(text) => handleOtpChange(text, index)}
-          />
-        ))}
-      </View>
+          <View style={styles.otpContainer}>
+            {otp.map((digit, index) => (
+              <TextInput
+                key={index}
+                ref={(el) => (inputRefs.current[index] = el)}
+                style={styles.otpBox}
+                maxLength={1}
+                keyboardType="numeric"
+                value={digit}
+                onChangeText={(text) => handleOtpChange(text, index)}
+              />
+            ))}
+          </View>
 
-      <TouchableOpacity style={styles.verifyButton} onPress={handleVerify}>
-        <Text style={styles.verifyText}>Verify</Text>
-      </TouchableOpacity>
+          <TouchableOpacity style={styles.verifyButton} onPress={handleVerify}>
+            <Text style={styles.verifyText}>Verify</Text>
+          </TouchableOpacity>
 
-      <Text style={styles.resendText}>
-        Haven't received OTP? <Text style={styles.resendLink}>resend</Text>
-      </Text>
-    </View>
+          {!keyboardVisible && (
+            <Text style={styles.resendText}>
+              Haven't received OTP? <Text style={styles.resendLink}>resend</Text>
+            </Text>
+          )}
+        </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -131,6 +157,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+
+
 
 
 

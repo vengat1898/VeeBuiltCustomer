@@ -121,7 +121,7 @@ export default function HirepeopleDetails1() {
 
 const styles = StyleSheet.create({
   header: {
-    height: 80,
+    height: 120,
     paddingTop: 20,
     paddingHorizontal: 16,
     flexDirection: 'row',
@@ -129,11 +129,13 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginRight: 10,
+    marginTop:30
   },
   headerText: {
     color: 'white',
     fontSize: 20,
     fontWeight: 'bold',
+    marginTop:30
   },
   scrollContent: {
     padding: 16,
@@ -267,10 +269,12 @@ const styles = StyleSheet.create({
 
   buttonRow: {
     flexDirection: 'row',
-  
+    alignItems:"center",
     marginTop: 15,
-    gap: 1,
-    marginBottom:20
+    gap: 8,
+    marginBottom:20,
+    marginLeft:15
+    
   },
   button: {
     flexDirection: 'row',
@@ -281,11 +285,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     borderRadius: 10,
     width: 98,
-    left:19
+    marginLeft:10
+    
   },
   buttonText: {
     color: 'white',
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: 'bold',
   },
   icon: {

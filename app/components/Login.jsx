@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Alert } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Alert, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import React, { useState } from 'react';
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -16,9 +16,9 @@ export default function Login() {
     }
 
     try {
-      const response = await axios.post('https://veebuilds.com/mobile/login.php?type=vendor&mobile=9003272385');
-
-      if (response.data.success==1) {
+      const response = await axios.post(`https://veebuilds.com/mobile/login.php?type=vendor&mobile=${mobileNumber}`);
+      
+      if (response.data.success == 1) {
         router.push({
           pathname: './components/Otp',
           params: { otp: response.data.otp },
@@ -33,28 +33,35 @@ export default function Login() {
   };
 
   return (
-    <View style={styles.container}>
-      <Image source={logoimg} style={styles.logo} resizeMode="contain" />
-      <Text style={styles.heading}>Sign In</Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1 }}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          <Image source={logoimg} style={styles.logo} resizeMode="contain" />
+          <Text style={styles.heading}>Sign In</Text>
 
-      <View style={styles.inputWrapper}>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Mobile Number"
-          keyboardType="phone-pad"
-          value={mobileNumber}
-          onChangeText={setMobileNumber}
-        />
-        <FontAwesome name="phone" size={20} color="gray" style={styles.icon} />
-      </View>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter Mobile Number"
+              keyboardType="phone-pad"
+              value={mobileNumber}
+              onChangeText={setMobileNumber}
+              maxLength={10}
+            />
+            <FontAwesome name="phone" size={20} color="gray" style={styles.icon} />
+          </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleGetOtp}>
-        <Text style={styles.buttonText}>Get OTP</Text>
-      </TouchableOpacity>
-    </View>
+          <TouchableOpacity style={styles.button} onPress={handleGetOtp}>
+            <Text style={styles.buttonText}>Get OTP</Text>
+          </TouchableOpacity>
+        </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -105,6 +112,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
+
 
 
 

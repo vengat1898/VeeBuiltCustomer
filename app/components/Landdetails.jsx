@@ -1,16 +1,62 @@
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Image } from 'react-native';
-import React from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Image, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import logoimg from '../../assets/images/veebuilder.png'; // Make sure the path is correct
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import axios from 'axios';
 
 export default function Landdetails() {
   const router = useRouter();
+  const { id } = useLocalSearchParams(); // get id from params
+  const [landDetails, setLandDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios.get('https://veebuilds.com/mobile/all_land_list.php')
+      .then(response => {
+        const land = response.data.storeList.find(item => item.id === id);
+        setLandDetails(land);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching land details:', error);
+        setLoading(false);
+      });
+  }, [id]);
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#1789AE" />
+      </View>
+    );
+  }
+
+  if (!landDetails) {
+    return (
+      <View style={styles.container}>
+        <Text>Land details not found.</Text>
+      </View>
+    );
+  }
+
+  const {
+    land_brocker,
+    land_area,
+    land_mark,
+    land_size,
+    connection,
+    siteimg,
+    property_type,
+    cost_per_sq,
+    tot_cost,
+    mobile
+  } = landDetails;
+
+  const imageUrl = `https://veebuilds.com/master/assets/images/product_image/${siteimg.replace(/[\[\]"]+/g, '')}`;
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <LinearGradient
         colors={['#1789AE', '#132740']}
         style={styles.header}
@@ -23,66 +69,54 @@ export default function Landdetails() {
         <Text style={styles.headerText}>Land Details</Text>
       </LinearGradient>
 
-      {/* Scrollable Content */}
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.item}>
           <Text style={styles.label}>Name:</Text>
-          <Text style={styles.nameText}>Minsway</Text>
+          <Text style={styles.nameText}>{land_brocker}</Text>
         </View>
-
         <View style={styles.item}>
           <Text style={styles.label}>Land Area:</Text>
-          <Text style={styles.valueText}>Home</Text>
+          <Text style={styles.valueText}>{land_area}</Text>
         </View>
-
         <View style={styles.item}>
           <Text style={styles.label}>Land mark:</Text>
-          <Text style={styles.valueText}>Pallavaram</Text>
+          <Text style={styles.valueText}>{land_mark}</Text>
         </View>
-
         <View style={styles.item}>
           <Text style={styles.label}>Land Size:</Text>
-          <Text style={styles.valueText}>1000 sq ft</Text>
+          <Text style={styles.valueText}>{land_size} sq ft</Text>
         </View>
-
         <View style={styles.item}>
           <Text style={styles.label}>Connection:</Text>
-          <Text style={styles.valueText}>Water</Text>
+          <Text style={styles.valueText}>{connection}</Text>
         </View>
-
         <View style={styles.item}>
           <Text style={styles.label}>Site Image:</Text>
-          <Image source={logoimg} style={styles.image} resizeMode="contain" />
+          <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="contain" />
         </View>
-
         <View style={styles.item}>
           <Text style={styles.label}>Property Type:</Text>
-          <Text style={styles.valueText}>Personal</Text>
+          <Text style={styles.valueText}>{property_type}</Text>
         </View>
-
         <View style={styles.item}>
           <Text style={styles.label}>Cost per sq ft:</Text>
-          <Text style={styles.valueText}>1000</Text>
+          <Text style={styles.valueText}>₹ {cost_per_sq}</Text>
         </View>
-
         <View style={styles.item}>
           <Text style={styles.label}>Total Cost:</Text>
-          <Text style={styles.valueText}>10,00,000</Text>
+          <Text style={styles.valueText}>₹ {tot_cost}</Text>
         </View>
       </ScrollView>
 
-      {/* Buttons inside card */}
       <View style={styles.buttonRow}>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={() => console.log('Call:', mobile)}>
           <Ionicons name="call" size={16} color="white" style={styles.icon} />
           <Text style={styles.buttonText}>Call</Text>
         </TouchableOpacity>
-
         <TouchableOpacity style={styles.button}>
           <Ionicons name="information-circle" size={16} color="white" style={styles.icon} />
           <Text style={styles.buttonText}>Enquiry</Text>
         </TouchableOpacity>
-
         <TouchableOpacity style={styles.button}>
           <Ionicons name="logo-whatsapp" size={16} color="white" style={styles.icon} />
           <Text style={styles.buttonText}>WhatsApp</Text>
@@ -98,7 +132,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
-    height: 80,
+    height: 120,
     paddingTop: 30,
     paddingHorizontal: 16,
     flexDirection: 'row',
@@ -109,6 +143,8 @@ const styles = StyleSheet.create({
     padding: 8,
     marginRight: 10,
     borderRadius: 20,
+    marginTop:30
+    
   },
   headerText: {
     color: 'white',
@@ -117,6 +153,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     flex: 1, // push the title to center
     marginRight: 40, // balance the center because of back button width
+    marginTop:30
   },
   content: {
     padding: 20,

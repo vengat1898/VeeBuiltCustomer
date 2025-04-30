@@ -24,7 +24,7 @@ export default function Myenquiry() {
         start={{ x: 1, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
-        <TouchableOpacity style={styles.backButton}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerText}>MyEnquiry</Text>
@@ -32,7 +32,7 @@ export default function Myenquiry() {
 
       {/* Container with cards */}
       <View style={styles.container}>
-        <TouchableOpacity onPress={() => handlePress('meterilas enquiry')}>
+        <TouchableOpacity onPress={() => handlePress('meterial enquiry')}>
           <LinearGradient
             colors={['#1789AE', '#132740']}
             style={styles.card}
@@ -71,7 +71,7 @@ export default function Myenquiry() {
 
       {/* Footer */}
       <View style={styles.footer}>
-        <Pressable style={styles.footerItem} onPress={() => handlePress('Home')}>
+        <Pressable style={styles.footerItem} >
           {({ pressed }) => (
             <>
               <Ionicons
@@ -113,14 +113,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
+    height:120
   },
   backButton: {
     marginRight: 12,
+    marginTop:40
   },
   headerText: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
+    marginTop:40
   },
   container: {
     flex: 1,

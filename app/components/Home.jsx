@@ -8,12 +8,14 @@ import {
   ScrollView,
   FlatList,
   Dimensions,
+  Alert
 } from 'react-native';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect} from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, FontAwesome, Ionicons, Entypo } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { ActivityIndicator } from 'react-native';
+import axios from 'axios';
 
 // Images
 import hot_enqiury from '../../assets/images/hot_enqiury.jpg';
@@ -86,8 +88,36 @@ export default function Home() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const router = useRouter();
   const scrollRef1 = useRef(null);
+  const [trendingData, setTrendingData] = useState([]); // Dynamic trending products
+  const [loadingTrending, setLoadingTrending] = useState(true); // Loading state
+  const [mostEnquiredData, setMostEnquiredData] = useState([]);
+  const [loadingMostEnquired, setLoadingMostEnquired] = useState(true);
+
 
   const getColor = (tabName) => (activeTab === tabName ? '#00A4C9' : '#666');
+
+
+   // Function to fetch Trending Products from API
+   const fetchTrendingProducts = async () => {
+    try {
+      const response = await axios.get('https://veebuilds.com/mobile/trending_products_list.php');
+      if (response.data.result === "Success") {
+        setTrendingData(response.data.storeList);
+      } else {
+        throw new Error('Failed to fetch trending products');
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Unable to load trending products');
+    } finally {
+      setLoadingTrending(false);
+    }
+  };
+
+  // useEffect to load trending products when component mounts
+  useEffect(() => {
+    fetchTrendingProducts();
+  }, []);
 
   const handleScroll = (event) => {
     const offsetX = event.nativeEvent.contentOffset.x;
@@ -97,6 +127,29 @@ export default function Home() {
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
   };
+
+
+  const fetchMostEnquiredProducts = async () => {
+    try {
+      const response = await axios.get('https://veebuilds.com/mobile/mostenquiredlist.php');
+      if (response.data.result === 'Success') {
+        setMostEnquiredData(response.data.storeList);
+      } else {
+        throw new Error('Failed to fetch most enquired products');
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Unable to load most enquired products');
+    } finally {
+      setLoadingMostEnquired(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTrendingProducts();
+    fetchMostEnquiredProducts();
+  }, []);
+  
 
   return (
     <View style={styles.container}>
@@ -113,10 +166,11 @@ export default function Home() {
             <Text style={styles.locationText}>Old Pallavaram</Text>
             <MaterialIcons name="arrow-drop-down" size={20} color="orange" />
           </View>
-          <TouchableOpacity>
-            <View style={styles.profileCircle}>
-              <FontAwesome name="user" size={20} color="white" />
-            </View>
+
+          <TouchableOpacity onPress={() => router.push('/components/profile')}>
+          <View style={styles.profileCircle}>
+           <FontAwesome name="user" size={20} color="white" />
+          </View>
           </TouchableOpacity>
         </View>
         <View style={styles.searchWrapper}>
@@ -126,7 +180,11 @@ export default function Home() {
       </LinearGradient>
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         {/* Banner */}
-        <Image source={hot_enqiury} style={styles.bannerImage} resizeMode="cover" />
+        
+        <TouchableOpacity onPress={() => router.push('/components/HotenquiryForm')}>
+       <Image source={hot_enqiury} style={styles.bannerImage} resizeMode="cover" />
+        </TouchableOpacity>
+
 
         {/* Categories */}
         <Text style={styles.sectionTitle}>Categories</Text>
@@ -147,63 +205,84 @@ export default function Home() {
         </View>
 
         {/* Most Searched Products */}
-        <Text style={styles.sectionTitle}>Most Searched Products</Text>
-        <FlatList
-          horizontal
-          data={overlayPairs}
-          keyExtractor={(_, index) => index.toString()}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.imageScrollContainer}
-          scrollEventThrottle={16}
-          renderItem={({ item }) => (
-            <View style={styles.overlayImageWrapper}>
-              <Image source={item.background} style={styles.overlayBaseImage} />
-              <Image source={item.overlay} style={styles.overlayTopImage} />
-              <View style={styles.overlayTextWrapper}>
-                <Text style={styles.overlayText}>{item.label}</Text>
-              </View>
-            </View>
-          )}
-        />
 
-        {/* Trending Section */}
-        <Text style={styles.sectionTitle}>Trending Products</Text>
-        <FlatList
-          data={trendingImages}
-          horizontal
-          keyExtractor={(_, index) => index.toString()}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.trendingContainer}
-          renderItem={({ item }) => (
-            <LinearGradient
-              colors={['#1789AE', '#132740']}
-              style={styles.trendingBox}
-              start={{ x: 1, y: 0 }}
-              end={{ x: 1, y: 1 }}
-            >
-              <Text style={styles.trendingLabel}>{item.label}</Text>
-              <Image source={item.image} style={styles.trendingImage} />
-            </LinearGradient>
-          )}
-        />
+<Text style={styles.sectionTitle}>Most Searched Products</Text>
+<FlatList
+  horizontal
+  data={overlayPairs}
+  keyExtractor={(_, index) => index.toString()}
+  showsHorizontalScrollIndicator={false}
+  contentContainerStyle={styles.imageScrollContainer}
+  scrollEventThrottle={16}
+  renderItem={({ item }) => (
+    <TouchableOpacity onPress={() => router.push('/components/Shop')}>
+      <View style={styles.overlayImageWrapper}>
+        <Image source={item.background} style={styles.overlayBaseImage} />
+        <Image source={item.overlay} style={styles.overlayTopImage} />
+        <View style={styles.overlayTextWrapper}>
+          <Text style={styles.overlayText}>{item.label}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  )}
+/>
 
-        {/* Most Enquired Products Section */}
-        <Text style={styles.sectionTitle}>Most Enquired Products</Text>
-        <View style={styles.mostEnquiredContainer}>
+{/* Trending Products Section */}
+<Text style={styles.sectionTitle}>Trending Products</Text>
+        {loadingTrending ? (
+          <ActivityIndicator size="large" color="#1789AE" />
+        ) : (
           <FlatList
             horizontal
-            data={mostEnquiredImages}
-            keyExtractor={(_, index) => index.toString()}
+            data={trendingData}
+            keyExtractor={(item) => item.master_id}
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.mostEnquiredScrollContainer}
+            contentContainerStyle={styles.trendingContainer}
             renderItem={({ item }) => (
-              <View style={styles.mostEnquiredBox}>
-                <Image source={item.image} style={styles.mostEnquiredImage} />
-                <Text style={styles.mostEnquiredLabel}>{item.label}</Text>
-              </View>
+              <TouchableOpacity onPress={() => router.push('/components/Shop')}>
+                <LinearGradient
+                  colors={['#1789AE', '#132740']}
+                  style={styles.trendingBox}
+                  start={{ x: 1, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <Text style={styles.trendingLabel}>{item.msater_name}</Text>
+                  <Image source={{ uri: item.image }} style={styles.trendingImage} resizeMode="cover" />
+                </LinearGradient>
+              </TouchableOpacity>
             )}
           />
-        </View>
+        )}
+
+
+<Text style={styles.sectionTitle}>Most Enquired Products</Text>
+<View style={styles.mostEnquiredContainer}>
+  {loadingMostEnquired ? (
+    <ActivityIndicator size="large" color="#1789AE" />
+  ) : (
+    <FlatList
+      horizontal
+      data={mostEnquiredData}
+      keyExtractor={(item) => item.id}
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.mostEnquiredScrollContainer}
+      renderItem={({ item }) => (
+        <TouchableOpacity onPress={() => router.push('/components/Shop')}>
+          <View style={styles.mostEnquiredBox}>
+            <Image
+              source={{ uri: item.image || 'https://veebuilds.com/master/assets/images/default.jpg' }}
+              style={styles.mostEnquiredImage}
+            />
+            <Text style={styles.mostEnquiredLabel}>{item.title}</Text>
+          </View>
+        </TouchableOpacity>
+      )}
+    />
+  )}
+</View>
+
+
+
       </ScrollView>
 
       {/* Footer */}
@@ -228,48 +307,64 @@ export default function Home() {
         </TouchableOpacity>
       </View>
 
-      {/* Drawer */}
+ {/* Drawer */}
 {drawerOpen && (
   <View style={styles.drawer}>
     {/* Top Content of Drawer */}
     <View style={styles.drawerTopContent}>
-    <Image source={logoimg} style={styles.drawerLogo} />
+      <Image source={logoimg} style={styles.drawerLogo} />
     </View>
     {/* Drawer Items */}
-    <TouchableOpacity style={styles.drawerItem}>
-        <Text style={styles.drawerLabel}>Home</Text>
-        <MaterialIcons name="arrow-drop-down" size={20} color="#000" />
-      </TouchableOpacity>
-    <TouchableOpacity style={styles.drawerItem}>
-      <Text style={styles.drawerLabel}>About Us</Text>
+    <TouchableOpacity style={styles.drawerItem} onPress={() => router.push('/components/Home')}>
+      <MaterialIcons name="home" size={24} color="#000" />
+      <Text style={styles.drawerLabel}>Home</Text>
       <MaterialIcons name="arrow-drop-down" size={20} color="#000" />
     </TouchableOpacity>
-    <TouchableOpacity style={styles.drawerItem}>
+
+    <TouchableOpacity style={styles.drawerItem} onPress={() => router.push('/components/Aboutus')}>
+      <MaterialIcons name="info" size={24} color="#000" />
+      <Text style={styles.drawerLabel}>About Us</Text>
+      <MaterialIcons name="arrow-drop-down" size={20} color="#000" />
+    </TouchableOpacity> 
+
+    <TouchableOpacity style={styles.drawerItem} onPress={() => router.push('/components/Contactus')}>
+      <MaterialIcons name="contact-mail" size={24} color="#000" />
       <Text style={styles.drawerLabel}>Contact Us</Text>
       <MaterialIcons name="arrow-drop-down" size={20} color="#000" />
     </TouchableOpacity>
-    <TouchableOpacity style={styles.drawerItem}>
+
+    <TouchableOpacity style={styles.drawerItem} onPress={() => router.push('/components/Myenquiry')}>
+      <MaterialIcons name="assignment" size={24} color="#000" />
       <Text style={styles.drawerLabel}>My Enquiry</Text>
       <MaterialIcons name="arrow-drop-down" size={20} color="#000" />
     </TouchableOpacity>
+
     <TouchableOpacity style={styles.drawerItem}>
+      <MaterialIcons name="share" size={24} color="#000" />
       <Text style={styles.drawerLabel}>Share App</Text>
       <MaterialIcons name="arrow-drop-down" size={20} color="#000" />
     </TouchableOpacity>
+
     <TouchableOpacity style={styles.drawerItem}>
+      <MaterialIcons name="help" size={24} color="#000" />
       <Text style={styles.drawerLabel}>Support</Text>
       <MaterialIcons name="arrow-drop-down" size={20} color="#000" />
     </TouchableOpacity>
+
     <TouchableOpacity style={styles.drawerItem}>
+      <MaterialIcons name="gavel" size={24} color="#000" />
       <Text style={styles.drawerLabel}>Terms and Conditions</Text>
       <MaterialIcons name="arrow-drop-down" size={20} color="#000" />
     </TouchableOpacity>
-    <TouchableOpacity style={styles.drawerItem}>
+
+    <TouchableOpacity style={styles.drawerItem} >
+      <MaterialIcons name="exit-to-app" size={24} color="#000" />
       <Text style={styles.drawerLabel}>Logout</Text>
       <MaterialIcons name="arrow-drop-down" size={20} color="#000" />
     </TouchableOpacity>
   </View>
 )}
+
 
     </View>
   );
@@ -279,7 +374,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   scrollContainer: { paddingBottom: 20 },
   header: {
-    paddingTop: 20,
+    paddingTop: 50,
     paddingHorizontal: 16,
     paddingBottom: 20,
   },
@@ -343,7 +438,7 @@ const styles = StyleSheet.create({
   },
   imageScrollContainer: {
     flexDirection: 'row',
-    paddingLeft: 8,
+    paddingLeft: 3,
     paddingRight: 16,
     marginTop: 18,
   },
@@ -351,7 +446,8 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: 110,
     height: 140,
-    marginRight: 10,
+    marginRight: 20,
+    left:8
   },
   overlayBaseImage: {
     width: '100%',
@@ -391,16 +487,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#027270',
     borderRadius: 8,
     paddingVertical: 10,
+    
   },
   mostEnquiredScrollContainer: {
     flexDirection: 'row',
     paddingLeft: 16,
     paddingRight: 8,
-    height:140
+    height:140,
+   
   },
   mostEnquiredBox: {
-    marginRight: 14,
+    marginRight: 20,
     alignItems: 'center',
+    
   },
   mostEnquiredImage: {
     width: 100,
@@ -416,10 +515,12 @@ const styles = StyleSheet.create({
     top:20
   },
   trendingContainer: {
-    paddingLeft: 16,
+    paddingLeft: 13,
     paddingRight: 8,
     marginTop: 10,
     flexDirection: 'row',
+    marginRight: 20,
+    gap: 16,
   },
   trendingBox: {
     alignItems: 'center',
@@ -427,7 +528,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 150,
     justifyContent: 'center',
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderRadius: 8,
   },
   trendingLabel: {
@@ -462,15 +563,15 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: 'white',
-    width: 250,
-    height:730,
+    width: 300,
+    height:840,
     padding: 20,
     zIndex: 10,
     borderRightWidth: 1,
     borderRightColor: '#ddd',
   },
   drawerTopContent: {
-    paddingBottom: 30, // Space for the top content
+    paddingBottom: 40, // Space for the top content
   },
   drawerItem: {
     flexDirection: 'row',
