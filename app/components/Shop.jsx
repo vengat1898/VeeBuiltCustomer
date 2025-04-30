@@ -24,7 +24,7 @@ const realEstateData = [
     size: '1000 sq ft',
     price: '49 enquiries answers',
     type: 'Burnt Clay Bricks',
-    // brand: 'Brand A',
+
   },
   {
     id: '2',
@@ -35,7 +35,7 @@ const realEstateData = [
     size: '1000 sq ft',
     price: '49 enquiries answers',
     type: 'Concrete Bricks',
-    // brand: 'Brand B',
+
   },
   {
     id: '3',
@@ -46,7 +46,7 @@ const realEstateData = [
     size: '1000 sq ft',
     price: '49 enquiries answers',
     type: 'Fly Ash Bricks',
-    // brand: 'Brand C',
+
   },
 ];
 

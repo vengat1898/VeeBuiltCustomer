@@ -173,10 +173,18 @@ export default function Home() {
           </View>
           </TouchableOpacity>
         </View>
-        <View style={styles.searchWrapper}>
-          <MaterialIcons name="search" size={20} color="#888" style={styles.searchIcon} />
-          <TextInput style={styles.searchInput} placeholder="Search" placeholderTextColor="#888" />
-        </View>
+        <TouchableOpacity onPress={() => router.push('/components/Search')}>
+      <View style={styles.searchWrapper}>
+        <MaterialIcons name="search" size={20} color="#888" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search"
+          placeholderTextColor="#888"
+          editable={false} 
+          pointerEvents="none" 
+        />
+      </View>
+    </TouchableOpacity>
       </LinearGradient>
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         {/* Banner */}
@@ -571,7 +579,7 @@ const styles = StyleSheet.create({
     borderRightColor: '#ddd',
   },
   drawerTopContent: {
-    paddingBottom: 40, // Space for the top content
+    paddingBottom: 40,
   },
   drawerItem: {
     flexDirection: 'row',
@@ -583,10 +591,10 @@ const styles = StyleSheet.create({
   },
   drawerLabel: {
     fontSize: 16,
-    fontWeight: 'bold', // To make the top content stand out more
+    fontWeight: 'bold',
   },
   drawerLogo: {
-    width: 180, // Increased the size of the logo
+    width: 180, 
     height: 180,
   },
 });

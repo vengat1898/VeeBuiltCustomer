@@ -1,29 +1,38 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, Alert, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import React, { useRef, useState, useEffect } from 'react';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import otpimg from '../../assets/images/otp.png';
 
 export default function Otp() {
   const router = useRouter();
+  const { otp: initialOtp, mobile: initialMobile, userId: initialUserId } = useLocalSearchParams();
+
   const [otp, setOtp] = useState(['', '', '', '']);
   const inputRefs = useRef([]);
-  const [mobile, setMobile] = useState('');
-  const [userId, setUserId] = useState('');
+  const [mobile, setMobile] = useState(initialMobile || '');
+  const [userId, setUserId] = useState(initialUserId || '');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-      setKeyboardVisible(true);
-    });
-    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-      setKeyboardVisible(false);
-    });
-
+    const show = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
+    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
     return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
+      show.remove();
+      hide.remove();
     };
   }, []);
 
@@ -31,7 +40,6 @@ export default function Otp() {
     const newOtp = [...otp];
     newOtp[index] = text;
     setOtp(newOtp);
-
     if (text && index < inputRefs.current.length - 1) {
       inputRefs.current[index + 1].focus();
     }
@@ -45,7 +53,9 @@ export default function Otp() {
     }
 
     try {
-      const response = await axios.post('https://veebuilds.com/mobile/otp_verify.php?type=1&otp=1111&mobile=7358691041');
+      const response = await axios.post(
+        `https://veebuilds.com/mobile/otp_verify.php?type=1&otp=${otpCode}&mobile=${mobile}`
+      );
 
       if (response.data.success === 1) {
         await AsyncStorage.setItem('mobile', mobile);
@@ -63,10 +73,7 @@ export default function Otp() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1 }}
-    >
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
           <Image source={otpimg} style={styles.logo} resizeMode="contain" />
@@ -157,6 +164,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+
 
 
 

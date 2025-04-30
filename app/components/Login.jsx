@@ -1,4 +1,16 @@
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Alert, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  Image,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import React, { useState } from 'react';
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -16,12 +28,18 @@ export default function Login() {
     }
 
     try {
-      const response = await axios.post(`https://veebuilds.com/mobile/login.php?type=vendor&mobile=${mobileNumber}`);
-      
+      const response = await axios.post(
+        `https://veebuilds.com/mobile/login.php?type=vendor&mobile=${mobileNumber}`
+      );
+
       if (response.data.success == 1) {
         router.push({
           pathname: './components/Otp',
-          params: { otp: response.data.otp },
+          params: {
+            otp: response.data.otp,
+            mobile: mobileNumber,
+            userId: response.data.userId || '',
+          },
         });
       } else {
         Alert.alert('Error', response.data.message || 'Failed to send OTP');
@@ -33,10 +51,7 @@ export default function Login() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1 }}
-    >
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
           <Image source={logoimg} style={styles.logo} resizeMode="contain" />
@@ -112,6 +127,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
 
 
 

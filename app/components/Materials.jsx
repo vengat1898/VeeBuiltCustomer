@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     right: 10,
   },
   boxButtonText: {
-    fontSize: 16,
+    fontSize: 12,
     width: 50,
     height: 50,
     color: '#132740',
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
   buttonText: { textAlign: 'center', top: 15 },
   imageBox: { marginBottom: 30, alignItems: 'center' },
   imageStyle: { width: 40, height: 40, borderRadius: 6 },
-  imageLabel: { fontSize: 12, color: '#132740', marginTop: 4, textAlign: 'center' },
+  imageLabel: { fontSize: 8, color: '#132740', marginTop: 4, textAlign: 'center' },
   scrollContainer: { paddingBottom: 10 },
   trendingContainer: {
     flex: 1,
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
     right: 8,
     height: 680,
   },
-  trendingHeader: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
+  trendingHeader: { fontSize: 13, fontWeight: 'bold', marginBottom: 10 },
   trendingImagesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
   },
   trendingItem: { alignItems: 'center' },
   trendingImage: { width: 100, height: 100, borderRadius: 8 },
-  trendingLabel: { fontSize: 12, color: '#fff', marginTop: 4, textAlign: 'center' },
+  trendingLabel: { fontSize: 10, color: '#fff', marginTop: 4, textAlign: 'center' },
 });
 
 
