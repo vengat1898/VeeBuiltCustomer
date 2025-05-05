@@ -123,7 +123,8 @@ export default function Shop() {
       />
       <View style={{ flex: 1 }}>
         <TouchableOpacity
-          onPress={() => router.push('/components/Shopdetails')}
+          onPress={() => router.push({ pathname: '/components/Shopdetails', params: { vendor_id: item.id } })}
+
           style={styles.cardTextContainer}
         >
           <Text style={styles.title}>{item.title}</Text>

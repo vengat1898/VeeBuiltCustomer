@@ -1,19 +1,59 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image, ScrollView } from 'react-native';
-import React, { useState } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, Image, ScrollView,ActivityIndicator  } from 'react-native';
+import React, { useState,useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import axios from 'axios';
+
 
 import logoimg from '../../assets/images/veebuilder.png'; 
 
 export default function HirepeopleDetails1() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('Quick Info'); // active tab state
+  const [activeTab, setActiveTab] = useState('Quick Info');
+  const { data } = useLocalSearchParams();
+  const { id } = JSON.parse(data || '{}'); // get id from passed data
+  const [person, setPerson] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchDetails = async () => {
+    try {
+      const response = await axios.get(`https://veebuilds.com/mobile/professional_details.php?id=${id}`);
+      if (response.data?.storeList?.length) {
+        setPerson(response.data.storeList[0]);
+      }
+    } catch (error) {
+      console.error('Error fetching person details:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (id) fetchDetails();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#1789AE" />
+      </View>
+    );
+  }
+
+  if (!person) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>No data found</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1 }}>
-      {/* Header */}
-      <LinearGradient
+       {/* Header */}
+       <LinearGradient
         colors={['#1789AE', '#132740']}
         style={styles.header}
         start={{ x: 1, y: 0 }}
@@ -25,16 +65,13 @@ export default function HirepeopleDetails1() {
         <Text style={styles.headerText}>Shop Details</Text>
       </LinearGradient>
 
-      {/* Scrollable Body */}
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Box with image only */}
         <View style={styles.box}>
-          <Image source={logoimg} style={styles.logo} />
+          <Image source={{ uri: person.aatharimage }} style={styles.logo} />
         </View>
 
-        {/* All Text outside the box */}
-        <Text style={styles.nameText}>Naveen</Text>
-        <Text style={styles.locationText}>Old Pallavaram</Text>
+        <Text style={styles.name}>{person.name}</Text>
+        <Text style={styles.city}>{person.city}</Text>
 
         <View style={styles.ratingRow}>
           <View style={styles.ratingBox}>
@@ -42,17 +79,16 @@ export default function HirepeopleDetails1() {
             <Text style={styles.ratingText}>4.5</Text>
           </View>
         </View>
+        <Text style={styles.city}>{person.occupation}</Text>
 
-        <Text style={styles.experienceText}>12 years of experience</Text>
+        <Text style={styles.yearofexp}>{person.yearofexp} years of experience</Text>
         <View style={styles.separator} />
 
-        <Text style={styles.addressHeading}>Address</Text>
-        <Text style={styles.addressText}>
-          No 204, Ralammal Nagar, Rajalakshmi Street, Chennai 27733
-        </Text>
+        <Text style={styles.address}>Address</Text>
+        <Text style={styles.addressText}>{person.address}</Text>
         <View style={styles.separator} />
 
-        {/* Tabs Section */}
+        {/* Tabs */}
         <View style={styles.tabsContainer}>
           {['Quick Info', 'Overview', 'Photos'].map((tab) => (
             <TouchableOpacity
@@ -65,59 +101,57 @@ export default function HirepeopleDetails1() {
           ))}
         </View>
 
-        {/* Tab Content Section */}
         <View style={styles.tabContent}>
           {activeTab === 'Quick Info' && (
             <>
               <Text style={styles.infoHeading}>Mobile</Text>
-              <Text style={styles.infoText}>8797785643</Text>
+              <Text style={styles.infoText}>{person.mobile}</Text>
 
               <Text style={styles.infoHeading}>Profession</Text>
-              <Text style={styles.infoText}>Mason</Text>
+              <Text style={styles.infoText}>{person.occupation}</Text>
 
               <Text style={styles.infoHeading}>Years of Experience</Text>
-              <Text style={styles.infoText}>12 years</Text>
+              <Text style={styles.infoText}>{person.yearofexp} years</Text>
             </>
           )}
           {activeTab === 'Overview' && (
             <>
-              <Text style={styles.infoHeading}>Minimum Cost per Sq Ft</Text>
-              <Text style={styles.infoText}>₹1500</Text>
+              <Text style={styles.infoHeading}>Cost with Material</Text>
+              <Text style={styles.infoText}>₹{person.costwithmeterial}</Text>
 
-              <Text style={styles.infoHeading}>Agreement Type</Text>
-              <Text style={styles.infoText}>Contractor Labour</Text>
+              <Text style={styles.infoHeading}>Work Type</Text>
+              <Text style={styles.infoText}>{person.worktype}</Text>
             </>
           )}
           {activeTab === 'Photos' && (
-           <View style={styles.photoContainer}>
-             <Image source={logoimg} style={styles.photoImage} />
-           </View>
-)}
-
+            <View style={styles.photoContainer}>
+              <Image source={{ uri: person.aatharimage }} style={styles.photoImage} />
+            </View>
+          )}
         </View>
-
-               
       </ScrollView>
-       {/* Buttons inside card */}
-       <View style={styles.buttonRow}>
-                  <TouchableOpacity style={styles.button}>
-                    <Ionicons name="call" size={16} color="white" style={styles.icon} />
-                    <Text style={styles.buttonText}>Call</Text>
-                  </TouchableOpacity>
-        
-                  <TouchableOpacity style={styles.button}>
-                    <Ionicons name="information-circle" size={16} color="white" style={styles.icon} />
-                    <Text style={styles.buttonText}>Enquiry Now</Text>
-                  </TouchableOpacity>
-        
-                  <TouchableOpacity style={styles.button}>
-                    <Ionicons name="logo-whatsapp" size={16} color="white" style={styles.icon} />
-                    <Text style={styles.buttonText}>WhatsApp</Text>
-                  </TouchableOpacity>
-                </View>
+
+      {/* Buttons */}
+      <View style={styles.buttonRow}>
+        <TouchableOpacity style={styles.button}>
+          <Ionicons name="call" size={16} color="white" style={styles.icon} />
+          <Text style={styles.buttonText}>Call</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button}>
+          <Ionicons name="information-circle" size={16} color="white" style={styles.icon} />
+          <Text style={styles.buttonText}>Enquiry Now</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button}>
+          <Ionicons name="logo-whatsapp" size={16} color="white" style={styles.icon} />
+          <Text style={styles.buttonText}>WhatsApp</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   header: {
@@ -156,7 +190,7 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 10,
   },
-  nameText: {
+  name: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 12,
@@ -181,12 +215,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginLeft: 4,
   },
-  locationText: {
+  city: {
     fontSize: 16,
     color: '#555',
     marginBottom: 12,
   },
-  experienceText: {
+  yearofexp: {
     fontSize: 16,
     color: '#555',
     marginBottom: 12,
@@ -197,7 +231,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ccc',
     marginVertical: 16,
   },
-  addressHeading: {
+  address: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#000',

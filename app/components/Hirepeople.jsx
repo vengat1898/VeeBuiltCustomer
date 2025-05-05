@@ -1,26 +1,42 @@
-// Hirepeople.js
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
-import React from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import axios from 'axios';
 
 export default function Hirepeople() {
   const router = useRouter();
+  const [professions, setProfessions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const professions = [
-    'Engineer', 'Architect', 'Mason', 'Plumber', 'Interior Designer', 'Helper', 'Welder', 'Carpenter', 
-    'Electrician', 'Surveyor', 'Iron Worker', 'Heavy Equipment Operator', 'Roofer', 'Tiles Setter', 
-    'Painter', 'Brick Layer'
-  ];
+  const fetchProfessions = async () => {
+    try {
+      const response = await axios.get('https://veebuilds.com/mobile/occupation_list.php');
+      if (response.data?.storeList) {
+        setProfessions(response.data.storeList);
+      }
+    } catch (error) {
+      console.error('Error fetching professions:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfessions();
+  }, []);
 
   const goToDetails = (profession) => {
-    router.push({ pathname: '/components/HirepeopleDeatils', params: { profession } });
+    router.push({
+      pathname: '/components/HirepeopleDeatils',
+      params: { id: profession.id, title: profession.title },
+    });
   };
+  
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <LinearGradient
         colors={['#1789AE', '#132740']}
         style={styles.header}
@@ -33,15 +49,26 @@ export default function Hirepeople() {
         <Text style={styles.headerText}>Hire People</Text>
       </LinearGradient>
 
-      {/* Scrollable list */}
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {professions.map((profession, index) => (
-          <TouchableOpacity key={index} style={styles.professionItem} onPress={() => goToDetails(profession)}>
-            <Text style={styles.professionText}>{profession}</Text>
-            <Ionicons name="chevron-forward" size={20} color="#1789AE" />
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      {loading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="#1789AE" />
+        </View>
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          {professions.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.professionItem}
+              // onPress={() => goToDetails(item.title)}
+              onPress={() => goToDetails(item)}
+
+            >
+              <Text style={styles.professionText}>{item.title}</Text>
+              <Ionicons name="chevron-forward" size={20} color="#1789AE" />
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 }
@@ -55,8 +82,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  backButton: { marginRight: 10,marginTop:30 },
-  headerText: { color: 'white', fontSize: 20, fontWeight: 'bold',marginTop:30 },
+  backButton: { marginRight: 10, marginTop: 30 },
+  headerText: { color: 'white', fontSize: 20, fontWeight: 'bold', marginTop: 30 },
   scrollContainer: {
     paddingVertical: 20,
     paddingHorizontal: 16,
@@ -67,7 +94,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: '#E0E0E0',
     justifyContent: 'space-between',
-    paddingVertical: 12, 
+    paddingVertical: 12,
     marginBottom: 15,
   },
   professionText: {
@@ -76,4 +103,5 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
 });
+
 

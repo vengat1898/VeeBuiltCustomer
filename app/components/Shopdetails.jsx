@@ -4,15 +4,18 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
+import { useLocalSearchParams } from 'expo-router';
 
 export default function Shopdetails() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('Quick Info');
   const [vendorData, setVendorData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { vendor_id } = useLocalSearchParams();
 
   useEffect(() => {
-    axios.get('https://veebuilds.com/mobile/vendor_details.php?vendor_id=3')
+    axios
+      .get(`https://veebuilds.com/mobile/vendor_details.php?vendor_id=${vendor_id}`)
       .then(response => {
         if (response.data?.result === "Success") {
           setVendorData(response.data.storeList[0]);
@@ -22,7 +25,7 @@ export default function Shopdetails() {
         console.error('API fetch error:', error);
       })
       .finally(() => setLoading(false));
-  }, []); 
+  }, [vendor_id]); 
 
   if (loading) {
     return (
@@ -250,7 +253,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   activeTabButton: {
-    borderBottomColor: '#1789AE', // Blue underline when active
+    borderBottomColor: '#1789AE', 
   },
   tabText: {
     fontSize: 16,
