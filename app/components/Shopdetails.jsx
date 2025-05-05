@@ -22,7 +22,7 @@ export default function Shopdetails() {
         console.error('API fetch error:', error);
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, []); 
 
   if (loading) {
     return (
