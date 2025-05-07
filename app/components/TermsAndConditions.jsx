@@ -18,7 +18,7 @@ export default function Aboutus() {
 
   const fetchAboutUs = async () => {
     try {
-      const response = await axios.get('https://veebuilds.com/mobile/about_us.php');
+      const response = await axios.get('https://veebuilds.com/mobile/terms_and_conditions.php');
       const $ = cheerio.load(response.data);
 
       const extractedTitle = $('#b-font').text().trim();
@@ -48,7 +48,7 @@ export default function Aboutus() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>About Us</Text>
+        <Text style={styles.headerTitle}>terms and conditions</Text>
       </LinearGradient>
 
       {/* Content */}
@@ -112,6 +112,3 @@ const styles = StyleSheet.create({
     textAlign: 'justify',
   },
 });
-
-
-

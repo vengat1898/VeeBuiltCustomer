@@ -29,6 +29,7 @@ import image_4 from '../../assets/images/image_4.jpg';
 import image_5 from '../../assets/images/image_5.jpg';
 import image_6 from '../../assets/images/image_6.jpg';
 import image_7 from '../../assets/images/image_7.jpg';
+
 import most1 from '../../assets/images/most1.jpg';
 import most2 from '../../assets/images/most2.jpg';
 import most3 from '../../assets/images/most3.jpg';
@@ -61,6 +62,17 @@ const overlayPairs = [
   { background: image_5, overlay: most5, label: 'Bath accessories' },
   { background: image_6, overlay: most6, label: 'adhesives' },
   { background: image_7, overlay: most7, label: 'Cement' },
+  { background: image_1, overlay: most1, label: 'Door fittings' },
+  { background: image_2, overlay: most2, label: 'Sand' },
+  { background: image_3, overlay: most3, label: 'Insulation Material' },
+  { background: image_4, overlay: most4, label: 'Wash bassin' },
+  { background: image_5, overlay: most5, label: 'Bath accessories' },
+  { background: image_6, overlay: most6, label: 'adhesives' },
+  { background: image_7, overlay: most7, label: 'Cement' },
+  { background: image_4, overlay: most4, label: 'Wash bassin' },
+  { background: image_5, overlay: most5, label: 'Bath accessories' },
+  { background: image_6, overlay: most6, label: 'adhesives' },
+  { background: image_7, overlay: most7, label: 'Cement' }, 
 ];
 
 const trendingImages = [
@@ -92,6 +104,9 @@ export default function Home() {
   const [loadingTrending, setLoadingTrending] = useState(true); // Loading state
   const [mostEnquiredData, setMostEnquiredData] = useState([]);
   const [loadingMostEnquired, setLoadingMostEnquired] = useState(true);
+  const [mostSearchedData, setMostSearchedData] = useState([]);
+  const [loadingMostSearched, setLoadingMostSearched] = useState(true);
+
 
 
   const getColor = (tabName) => (activeTab === tabName ? '#00A4C9' : '#666');
@@ -149,6 +164,56 @@ export default function Home() {
     fetchTrendingProducts();
     fetchMostEnquiredProducts();
   }, []);
+
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Logout',
+          onPress: () => {
+            router.push('/components/Login'); // Replace to prevent going back
+          },
+          style: 'destructive',
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+
+  const fetchMostSearchedProducts = async () => {
+    try {
+      const response = await axios.get('https://veebuilds.com/mobile/recentlist.php');
+      if (response.data.result === 'Success') {
+        setMostSearchedData(response.data.storeList);
+      } else {
+        throw new Error('Failed to fetch most searched products');
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Unable to load most searched products');
+    } finally {
+      setLoadingMostSearched(false);
+    }
+  };
+
+  
+  useEffect(() => {
+    fetchTrendingProducts();
+    fetchMostEnquiredProducts();
+    fetchMostSearchedProducts(); // ← Add this line
+  }, []);
+
+
+  
+  
   
 
   return (
@@ -213,27 +278,39 @@ export default function Home() {
         </View>
 
         {/* Most Searched Products */}
-
 <Text style={styles.sectionTitle}>Most Searched Products</Text>
-<FlatList
-  horizontal
-  data={overlayPairs}
-  keyExtractor={(_, index) => index.toString()}
-  showsHorizontalScrollIndicator={false}
-  contentContainerStyle={styles.imageScrollContainer}
-  scrollEventThrottle={16}
-  renderItem={({ item }) => (
-    <TouchableOpacity onPress={() => router.push('/components/Shop')}>
-      <View style={styles.overlayImageWrapper}>
-        <Image source={item.background} style={styles.overlayBaseImage} />
-        <Image source={item.overlay} style={styles.overlayTopImage} />
-        <View style={styles.overlayTextWrapper}>
-          <Text style={styles.overlayText}>{item.label}</Text>
+{loadingMostSearched ? (
+  <ActivityIndicator size="large" color="#1789AE" />
+) : (
+  <FlatList
+    horizontal
+    data={overlayPairs.map((item, index) => ({
+      ...item,
+      ...(mostSearchedData[index] || {}), // merge API data into overlay pair
+    }))}
+    keyExtractor={(_, index) => index.toString()}
+    showsHorizontalScrollIndicator={false}
+    contentContainerStyle={styles.imageScrollContainer}
+    scrollEventThrottle={16}
+    renderItem={({ item }) => (
+      <TouchableOpacity  onPress={() =>router.push({ pathname: '/components/Shop', params: { cat_id: item.id } })}>
+        <View style={styles.overlayImageWrapper}>
+        
+          <Image source={item.background} style={styles.overlayBaseImage} />
+          
+          {item.image && (
+            <Image source={{ uri: item.image }} style={styles.overlayTopImage} />
+          )}
+          
+          <View style={styles.overlayTextWrapper}>
+            <Text style={styles.overlayText}>{item.title || item.label}</Text>
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  )}
-/>
+      </TouchableOpacity>
+    )}
+  />
+)}
+
 
 {/* Trending Products Section */}
 <Text style={styles.sectionTitle}>Trending Products</Text>
@@ -247,7 +324,7 @@ export default function Home() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.trendingContainer}
             renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => router.push('/components/Shop')}>
+              <TouchableOpacity onPress={() =>router.push({ pathname: '/components/Shop', params: { cat_id: item.master_id } })}>
                 <LinearGradient
                   colors={['#1789AE', '#132740']}
                   style={styles.trendingBox}
@@ -271,11 +348,11 @@ export default function Home() {
     <FlatList
       horizontal
       data={mostEnquiredData}
-      keyExtractor={(item) => item.id}
+      keyExtractor={(item) => item.id} 
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.mostEnquiredScrollContainer}
       renderItem={({ item }) => (
-        <TouchableOpacity onPress={() => router.push('/components/Shop')}>
+        <TouchableOpacity onPress={() =>router.push({ pathname: '/components/Shop', params: { cat_id: item.master_id } })}>
           <View style={styles.mostEnquiredBox}>
             <Image
               source={{ uri: item.image || 'https://veebuilds.com/master/assets/images/default.jpg' }}
@@ -353,13 +430,13 @@ export default function Home() {
       <MaterialIcons name="arrow-drop-down" size={20} color="#000" />
     </TouchableOpacity>
 
-    <TouchableOpacity style={styles.drawerItem}>
+    <TouchableOpacity style={styles.drawerItem} onPress={() => router.push('/components/Support')}>
       <MaterialIcons name="help" size={24} color="#000" />
       <Text style={styles.drawerLabel}>Support</Text>
       <MaterialIcons name="arrow-drop-down" size={20} color="#000" />
     </TouchableOpacity>
 
-    <TouchableOpacity style={styles.drawerItem}>
+    <TouchableOpacity style={styles.drawerItem} onPress={() => router.push('/components/TermsAndConditions')}>
       <MaterialIcons name="gavel" size={24} color="#000" />
       <Text style={styles.drawerLabel}>Terms and Conditions</Text>
       <MaterialIcons name="arrow-drop-down" size={20} color="#000" />
@@ -370,6 +447,8 @@ export default function Home() {
       <Text style={styles.drawerLabel}>Logout</Text>
       <MaterialIcons name="arrow-drop-down" size={20} color="#000" />
     </TouchableOpacity>
+
+
   </View>
 )}
 
@@ -481,7 +560,7 @@ const styles = StyleSheet.create({
   },
   overlayText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: 10,
     fontWeight: 'bold',
     textAlign: 'center',
     paddingHorizontal: 8,

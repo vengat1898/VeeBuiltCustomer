@@ -186,9 +186,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   logo: {
-    width: 120,
-    height: 120,
+    width: 100,
+    height: 250,
     borderRadius: 10,
+    left:80
   },
   name: {
     fontSize: 24,
@@ -295,7 +296,7 @@ const styles = StyleSheet.create({
     height:150
   },
   photoImage: {
-    width: 200,
+    width: 100,
     height: 200,
     borderRadius: 10,
   },
